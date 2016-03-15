@@ -120,4 +120,9 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     public boolean canSeekForward() {
         return true;
     }
+
+    @Override
+    public void setVolume(float volume) {
+        player.setVolume(volume, volume);
+    }
 }

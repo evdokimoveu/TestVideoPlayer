@@ -41,6 +41,7 @@ public class MediaController extends FrameLayout {
     private ImageButton nextButton;
     private boolean isShow;
     private boolean dragging;
+    private boolean isMute;
 
     private Handler handler = new MessageHandler(this);
 
@@ -48,6 +49,7 @@ public class MediaController extends FrameLayout {
     public MediaController(Context context) {
         super(context);
         this.mediaControllerContext = context;
+        this.isMute = false;
     }
 
     @Override
@@ -275,7 +277,6 @@ public class MediaController extends FrameLayout {
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
                 || keyCode == KeyEvent.KEYCODE_VOLUME_UP
                 || keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
-            // don't show the controls for volume adjustment
             return super.dispatchKeyEvent(event);
         } else if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_MENU) {
             if (uniqueDown) {
@@ -304,6 +305,16 @@ public class MediaController extends FrameLayout {
     private View.OnClickListener volumeButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            if(isMute){
+                playerControl.setVolume(1);
+                isMute = false;
+                updateVolumeButton();
+            }
+            else{
+                playerControl.setVolume(0);
+                isMute = true;
+                updateVolumeButton();
+            }
 
         }
     };
@@ -391,11 +402,21 @@ public class MediaController extends FrameLayout {
         if (viewMediaController == null || playButton == null || playerControl == null) {
             return;
         }
-
         if (playerControl.isPlaying()) {
             playButton.setImageResource(R.drawable.pause_circle_outline);
         } else {
             playButton.setImageResource(R.drawable.play_circle_outline);
+        }
+    }
+    private void updateVolumeButton(){
+        if (viewMediaController == null || volumeButton == null || playerControl == null) {
+            return;
+        }
+        if(isMute){
+            volumeButton.setImageResource(R.drawable.volume_off);
+        }
+        else{
+            volumeButton.setImageResource(R.drawable.volume_high);
         }
     }
 
@@ -423,6 +444,7 @@ public class MediaController extends FrameLayout {
         boolean canPause();
         boolean canSeekBackward();
         boolean canSeekForward();
+        void    setVolume(float volume);
     }
 
     private static class MessageHandler extends Handler {
