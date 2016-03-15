@@ -17,8 +17,6 @@ import java.util.List;
 
 public class JSONParser extends AsyncTask<Void, Void, String> {
 
-    private HttpURLConnection urlConnection = null;
-    private BufferedReader reader = null;
     private String resultJson = "";
     private List<String> titles;
 
@@ -27,14 +25,14 @@ public class JSONParser extends AsyncTask<Void, Void, String> {
         try {
             URL url = new URL("http://testapi.qix.sx/getAllTVChannels.json");
 
-            urlConnection = (HttpURLConnection) url.openConnection();
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
             urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
 
-            reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
             String line;
             while ((line = reader.readLine()) != null) {
@@ -55,7 +53,6 @@ public class JSONParser extends AsyncTask<Void, Void, String> {
         super.onPostExecute(strJson);
         titles = new LinkedList<>();
         JSONObject dataJsonObj;
-        String secondName = "";
 
         try {
             dataJsonObj = new JSONObject(strJson);
