@@ -23,7 +23,7 @@
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="70dp"
         android:layout_alignParentBottom="true">
 
         <SeekBar
@@ -34,7 +34,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="70dp"
             android:layout_gravity="left|center_vertical">
 
             <ImageButton
@@ -60,7 +60,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
+            android:layout_height="70dp"
             android:layout_gravity="center" >
             <ImageButton
                 android:id="@+id/previous"
