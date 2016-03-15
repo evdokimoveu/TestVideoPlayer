@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/media_controller"
+    android:orientation="horizontal">
+
+    <FrameLayout
+        android:id="@+id/frame_name_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/video_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"/>
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true">
+
+        <SeekBar
+            android:id="@+id/seek_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/frameLayout" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:layout_gravity="left|center_vertical">
+
+            <ImageButton
+                android:id="@+id/tv"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/television"
+                android:background="@null"/>
+            <ImageButton
+                android:id="@+id/play_list"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/playlist_play"
+                android:background="@null"/>
+            <ImageButton
+                android:id="@+id/volume"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/volume_high"
+                android:background="@null"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:layout_gravity="center" >
+            <ImageButton
+                android:id="@+id/previous"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/skip_previous"
+                android:background="@null"/>
+            <ImageButton
+                android:id="@+id/backward"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/skip_backward"
+                android:background="@null"/>
+            <ImageButton
+                android:id="@+id/play"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/play_circle_outline"
+                android:background="@null"/>
+            <ImageButton
+                android:id="@+id/forward"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/skip_forward"
+                android:background="@null"/>
+            <ImageButton
+                android:id="@+id/next"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/skip_next"
+                android:background="@null"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:layout_gravity="center_vertical|right" >
+            <TextView
+                android:id="@+id/quality"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+    </FrameLayout>
+</RelativeLayout>
