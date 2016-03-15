@@ -1,5 +1,6 @@
 package com.evdokimoveu.testvideoplayer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -81,51 +82,52 @@ public class MediaController extends FrameLayout {
         return viewMediaController;
     }
 
+    @SuppressLint("WrongViewCast")
     private void initMediaControllerView(View v){
-        tvButton = (ImageButton)findViewById(R.id.tv);
+        tvButton = (ImageButton)v.findViewById(R.id.tv);
         if(tvButton != null){
             tvButton.setOnClickListener(tvButtonListener);
         }
 
-        playListButton = (ImageButton)findViewById(R.id.play_list);
+        playListButton = (ImageButton)v.findViewById(R.id.play_list);
         if(playListButton != null){
             playListButton.setOnClickListener(playListButtonListener);
         }
 
-        volumeButton = (ImageButton)findViewById(R.id.volume);
+        volumeButton = (ImageButton)v.findViewById(R.id.volume);
         if(volumeButton != null){
             volumeButton.setOnClickListener(volumeButtonListener);
         }
 
-        playButton = (ImageButton)findViewById( R.id.play);
+        playButton = (ImageButton)v.findViewById(R.id.play);
         if(playButton != null){
             playButton.setOnClickListener(playButtonListener);
         }
 
-        forwardButton = (ImageButton)findViewById( R.id.forward);
+        forwardButton = (ImageButton)v.findViewById(R.id.forward);
         if(forwardButton != null){
             forwardButton.setOnClickListener(forwardButtonListener);
         }
 
-        backwardButton = (ImageButton)findViewById( R.id.backward);
+        backwardButton = (ImageButton)v.findViewById(R.id.backward);
         if(backwardButton != null){
             backwardButton.setOnClickListener(backwardButtonListener);
         }
 
-        previousButton = (ImageButton)findViewById( R.id.previous);
+        previousButton = (ImageButton)v.findViewById(R.id.previous);
         if(previousButton != null){
             previousButton.setOnClickListener(previousButtonListener);
         }
 
-        nextButton = (ImageButton)findViewById(R.id.next);
+        nextButton = (ImageButton)v.findViewById(R.id.next);
         if(nextButton != null){
             nextButton.setOnClickListener(nextButtonListener);
         }
 
-        videoName = (TextView)findViewById(R.id.video_name);
-        videoQuality = (TextView)findViewById(R.id.quality);
+        videoName = (TextView)v.findViewById(R.id.video_name);
+        videoQuality = (TextView)v.findViewById(R.id.quality);
 
-        progressBar = (ProgressBar)findViewById(R.id.seek_bar);
+        progressBar = (ProgressBar)v.findViewById(R.id.seek_bar);
         if (progressBar != null) {
             if (progressBar instanceof SeekBar) {
                 SeekBar seeker = (SeekBar) progressBar;
@@ -178,7 +180,6 @@ public class MediaController extends FrameLayout {
             isShow = true;
         }
         updatePlayButton();
-        //updateFullScreen();
 
         handler.sendEmptyMessage(SHOW_PROGRESS);
 
