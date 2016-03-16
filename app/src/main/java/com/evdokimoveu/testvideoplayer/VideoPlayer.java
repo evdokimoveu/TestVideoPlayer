@@ -13,7 +13,6 @@ import android.widget.FrameLayout;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl  {
 
@@ -21,7 +20,6 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     private MediaController controller;
     private ArrayList<String> channels;
     private ArrayList<PlayListItem> playList;
-    private String url = "http://testapi.qix.sx/video/music.mp4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +33,7 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
         channels = intent.getStringArrayListExtra("channels");
 
         //Add video to play list
+        playList = new ArrayList<>();
         playList.add(new PlayListItem("Клип", "http://testapi.qix.sx/video/music.mp4"));
         playList.add(new PlayListItem("Трейлер", "http://testapi.qix.sx/video/trailer.mp4"));
 
@@ -42,6 +41,7 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
         controller = new MediaController(this);
         try{
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            String url = "http://testapi.qix.sx/video/music.mp4";
             player.setDataSource(this, Uri.parse(url));
             player.setOnPreparedListener(this);
         } catch (IllegalArgumentException | IOException | SecurityException | IllegalStateException ex){
@@ -132,7 +132,7 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     }
 
     @Override
-    public ArrayList getChanels() {
+    public ArrayList<String> getChanels() {
         return channels;
     }
 
