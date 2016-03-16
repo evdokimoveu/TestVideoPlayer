@@ -21,8 +21,6 @@ import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MediaController extends FrameLayout {
 
@@ -31,7 +29,6 @@ public class MediaController extends FrameLayout {
     private ViewGroup viewGroup;
     private MediaPlayerControl playerControl;
     private ProgressBar progressBar;
-    private TextView videoQuality;
     private TextView videoName;
     private final static int DEFAULT_TIMEOUT = 3000;
     private static final int FADE_OUT = 1;
@@ -143,7 +140,6 @@ public class MediaController extends FrameLayout {
         }
 
         videoName = (TextView)v.findViewById(R.id.video_name);
-        videoQuality = (TextView)v.findViewById(R.id.quality);
 
         progressBar = (ProgressBar)v.findViewById(R.id.seek_bar);
         if (progressBar != null) {
