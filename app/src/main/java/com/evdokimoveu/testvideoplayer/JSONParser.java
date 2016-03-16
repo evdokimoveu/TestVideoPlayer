@@ -2,6 +2,7 @@ package com.evdokimoveu.testvideoplayer;
 
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,13 +13,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayList;
 
 public class JSONParser extends AsyncTask<Void, Void, String> {
 
     private String resultJson = "";
-    private List<String> titles;
+    private ArrayList<String> titles;
 
     @Override
     protected String doInBackground(Void... params) {
@@ -51,22 +51,23 @@ public class JSONParser extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPostExecute(String strJson) {
         super.onPostExecute(strJson);
-        titles = new LinkedList<>();
-        JSONObject dataJsonObj;
+        titles = new ArrayList<>();
 
         try {
-            dataJsonObj = new JSONObject(strJson);
-            JSONArray channels = dataJsonObj.getJSONArray("item");
-            for (int i = 0; i < channels.length(); i++) {
-                JSONObject channel = channels.getJSONObject(i);
+            JSONArray rootArray = new JSONArray(strJson);
+            JSONObject itemsObj = rootArray.getJSONObject(0);
+            JSONArray itemsArray = itemsObj.getJSONArray("items");
+            for(int i = 0; i < itemsArray.length(); i++){
+                JSONObject channel = itemsArray.getJSONObject(i);
                 titles.add(channel.getString("title"));
             }
+
         } catch (JSONException ex) {
             ex.printStackTrace();
         }
     }
 
-    public List<String >getChannelTitles(){
+    public ArrayList<String>getChannelTitles(){
         return titles;
     }
 }
