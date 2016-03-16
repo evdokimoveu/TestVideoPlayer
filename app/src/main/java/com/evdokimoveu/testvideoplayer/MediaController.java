@@ -292,7 +292,7 @@ public class MediaController extends FrameLayout {
     private View.OnClickListener tvButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            playerControl.showListChannels(tvButton);
         }
     };
     private View.OnClickListener playListButtonListener = new View.OnClickListener() {
@@ -445,6 +445,7 @@ public class MediaController extends FrameLayout {
         boolean canSeekBackward();
         boolean canSeekForward();
         void    setVolume(float volume);
+        void    showListChannels(View v);
     }
 
     private static class MessageHandler extends Handler {

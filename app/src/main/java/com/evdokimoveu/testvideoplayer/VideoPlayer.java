@@ -1,34 +1,42 @@
 package com.evdokimoveu.testvideoplayer;
 
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.PopupMenu;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl  {
 
 
-    private SurfaceView surfaceView;
     private MediaPlayer player;
     private MediaController controller;
+    private ArrayList<String> channels;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_player);
-        surfaceView = (SurfaceView)findViewById(R.id.video);
+        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.video);
         SurfaceHolder videoHolder = surfaceView.getHolder();
         videoHolder.addCallback(this);
+
+        Intent intent = getIntent();
+        channels = intent.getStringArrayListExtra("channels");
         player = new MediaPlayer();
         controller = new MediaController(this);
-
         try{
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
             player.setDataSource(this, Uri.parse("http://testapi.qix.sx/video/music.mp4"));
@@ -64,12 +72,6 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
         player.start();
     }
 
-    private void loadVideToList(){
-
-    }
-    private void loadTVToList(){
-
-    }
 
     @Override
     public void start() {
@@ -125,4 +127,14 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     public void setVolume(float volume) {
         player.setVolume(volume, volume);
     }
+
+    @Override
+    public void showListChannels(View v) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
+        for(int i = 0; i < channels.size(); i++){
+            popupMenu.getMenu().add(channels.get(i));
+        }
+        popupMenu.show();
+    }
+
 }
