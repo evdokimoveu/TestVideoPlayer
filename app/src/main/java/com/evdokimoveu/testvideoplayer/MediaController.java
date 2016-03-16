@@ -8,16 +8,21 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MediaController extends FrameLayout {
 
@@ -31,6 +36,8 @@ public class MediaController extends FrameLayout {
     private final static int DEFAULT_TIMEOUT = 3000;
     private static final int FADE_OUT = 1;
     private static final int SHOW_PROGRESS = 2;
+    private static final int MUSIC = 0;
+    private static final int TRAILER = 1;
     private ImageButton tvButton;
     private ImageButton playListButton;
     private ImageButton volumeButton;
@@ -42,6 +49,8 @@ public class MediaController extends FrameLayout {
     private boolean isShow;
     private boolean dragging;
     private boolean isMute;
+    private boolean isNext;
+    private boolean isPrev;
 
     private Handler handler = new MessageHandler(this);
 
@@ -50,6 +59,8 @@ public class MediaController extends FrameLayout {
         super(context);
         this.mediaControllerContext = context;
         this.isMute = false;
+        this.isNext = true;
+        this.isPrev = false;
     }
 
     @Override
@@ -62,7 +73,6 @@ public class MediaController extends FrameLayout {
     public void setMediaPlayer(MediaPlayerControl player) {
         playerControl = player;
         updatePlayButton();
-        //updateFullScreen();
     }
 
     public void setSurfaceView(ViewGroup viewGroup){
@@ -119,11 +129,17 @@ public class MediaController extends FrameLayout {
         previousButton = (ImageButton)v.findViewById(R.id.previous);
         if(previousButton != null){
             previousButton.setOnClickListener(previousButtonListener);
+            if(!isPrev){
+                previousButton.setClickable(false);
+            }
         }
 
         nextButton = (ImageButton)v.findViewById(R.id.next);
         if(nextButton != null){
             nextButton.setOnClickListener(nextButtonListener);
+            if(!isNext){
+                nextButton.setClickable(false);
+            }
         }
 
         videoName = (TextView)v.findViewById(R.id.video_name);
@@ -137,7 +153,6 @@ public class MediaController extends FrameLayout {
             }
             progressBar.setMax(1000);
         }
-
     }
 
     public void show() {
@@ -292,13 +307,45 @@ public class MediaController extends FrameLayout {
     private View.OnClickListener tvButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            playerControl.showListChannels(tvButton);
+            PopupMenu popupMenu = new PopupMenu(mediaControllerContext, tvButton);
+            ArrayList<String> channels = playerControl.getChanels();
+            for(int i = 0; i < channels.size(); i++){
+                popupMenu.getMenu().add(channels.get(i));
+            }
+            popupMenu.show();
         }
     };
+
     private View.OnClickListener playListButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            final ArrayList<PlayListItem> playListItems = playerControl.getPlayList();
 
+            PopupMenu popupMenu = new PopupMenu(mediaControllerContext, playListButton);
+            for(int i = 0; i < playListItems.size(); i++){
+                popupMenu.getMenu().add(0, i, 0, playListItems.get(i).getNameVideo());            }
+
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    String url;
+                    switch (item.getItemId()){
+                        case MUSIC:
+                            url = playListItems.get(MUSIC).getUrlVideo();
+                            playerControl.playNewVideo(url);
+                            videoName.setText(playListItems.get(MUSIC).getNameVideo());
+                            return true;
+                        case TRAILER:
+                            url = playListItems.get(TRAILER).getUrlVideo();
+                            playerControl.playNewVideo(url);
+                            videoName.setText(playListItems.get(TRAILER).getNameVideo());
+                            return true;
+                        default:
+                            return true;
+                    }
+                }
+            });
+            popupMenu.show();
         }
     };
 
@@ -315,7 +362,6 @@ public class MediaController extends FrameLayout {
                 isMute = true;
                 updateVolumeButton();
             }
-
         }
     };
     private View.OnClickListener playButtonListener = new View.OnClickListener() {
@@ -408,6 +454,7 @@ public class MediaController extends FrameLayout {
             playButton.setImageResource(R.drawable.play_circle_outline);
         }
     }
+
     private void updateVolumeButton(){
         if (viewMediaController == null || volumeButton == null || playerControl == null) {
             return;
@@ -417,6 +464,34 @@ public class MediaController extends FrameLayout {
         }
         else{
             volumeButton.setImageResource(R.drawable.volume_high);
+        }
+    }
+
+    private void updatePrevButton(){
+        if (viewMediaController == null ||
+                previousButton == null ||
+                playerControl == null) {
+            return;
+        }
+        if(isPrev){
+            previousButton.setClickable(true);
+        }
+        else{
+            previousButton.setClickable(false);
+        }
+    }
+
+    private void updateNextButton(){
+        if (viewMediaController == null ||
+                nextButton == null ||
+                playerControl == null) {
+            return;
+        }
+        if(isNext){
+            nextButton.setClickable(true);
+        }
+        else{
+            nextButton.setClickable(false);
         }
     }
 
@@ -445,7 +520,9 @@ public class MediaController extends FrameLayout {
         boolean canSeekBackward();
         boolean canSeekForward();
         void    setVolume(float volume);
-        void    showListChannels(View v);
+        void    playNewVideo(String url);
+        ArrayList<String> getChanels();
+        ArrayList<PlayListItem> getPlayList();
     }
 
     private static class MessageHandler extends Handler {

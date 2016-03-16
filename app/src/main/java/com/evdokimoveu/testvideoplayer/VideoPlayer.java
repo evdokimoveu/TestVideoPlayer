@@ -6,24 +6,22 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.PopupMenu;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Callback, MediaPlayer.OnPreparedListener, MediaController.MediaPlayerControl  {
-
 
     private MediaPlayer player;
     private MediaController controller;
     private ArrayList<String> channels;
+    private ArrayList<PlayListItem> playList;
+    private String url = "http://testapi.qix.sx/video/music.mp4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +33,16 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
 
         Intent intent = getIntent();
         channels = intent.getStringArrayListExtra("channels");
+
+        //Add video to play list
+        playList.add(new PlayListItem("Клип", "http://testapi.qix.sx/video/music.mp4"));
+        playList.add(new PlayListItem("Трейлер", "http://testapi.qix.sx/video/trailer.mp4"));
+
         player = new MediaPlayer();
         controller = new MediaController(this);
         try{
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            player.setDataSource(this, Uri.parse("http://testapi.qix.sx/video/music.mp4"));
+            player.setDataSource(this, Uri.parse(url));
             player.setOnPreparedListener(this);
         } catch (IllegalArgumentException | IOException | SecurityException | IllegalStateException ex){
             ex.printStackTrace();
@@ -129,12 +132,23 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     }
 
     @Override
-    public void showListChannels(View v) {
-        PopupMenu popupMenu = new PopupMenu(this, v);
-        for(int i = 0; i < channels.size(); i++){
-            popupMenu.getMenu().add(channels.get(i));
-        }
-        popupMenu.show();
+    public ArrayList getChanels() {
+        return channels;
     }
 
+    @Override
+    public ArrayList<PlayListItem> getPlayList() {
+        return playList;
+    }
+
+    @Override
+    public void playNewVideo(String url) {
+        try {
+            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            player.setDataSource(this, Uri.parse(url));
+            player.setOnPreparedListener(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
