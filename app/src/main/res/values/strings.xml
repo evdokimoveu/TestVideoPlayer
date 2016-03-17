@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">TestVideoPlayer</string>
+    <string name="welcome">Video Player</string>
     <string name="video_quality">HD</string>
     <string name="tv_button">Channels</string>
     <string name="play_list_button">Play List</string>
