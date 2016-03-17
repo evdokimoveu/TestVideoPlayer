@@ -48,6 +48,7 @@ public class MediaController extends FrameLayout {
     private boolean isMute;
     private boolean isNext;
     private boolean isPrev;
+    private ArrayList<PlayListItem> playListItems;
 
     private Handler handler = new MessageHandler(this);
 
@@ -69,6 +70,7 @@ public class MediaController extends FrameLayout {
 
     public void setMediaPlayer(MediaPlayerControl player) {
         playerControl = player;
+        playListItems = playerControl.getPlayList();
         updatePlayButton();
     }
 
@@ -140,6 +142,9 @@ public class MediaController extends FrameLayout {
         }
 
         videoName = (TextView)v.findViewById(R.id.video_name);
+        if(playListItems.size() > 0){
+            videoName.setText(playListItems.get(0).getNameVideo());
+        }
 
         progressBar = (ProgressBar)v.findViewById(R.id.seek_bar);
         if (progressBar != null) {
@@ -315,8 +320,6 @@ public class MediaController extends FrameLayout {
     private View.OnClickListener playListButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            final ArrayList<PlayListItem> playListItems = playerControl.getPlayList();
-
             PopupMenu popupMenu = new PopupMenu(mediaControllerContext, playListButton);
             for(int i = 0; i < playListItems.size(); i++){
                 popupMenu.getMenu().add(0, i, 0, playListItems.get(i).getNameVideo());            }
@@ -463,6 +466,29 @@ public class MediaController extends FrameLayout {
         }
     }
 
+    private void checkNextPrev(int index, int sizeList){
+        if(sizeList > 0){
+            if(index == 0){
+                isPrev = false;
+                isNext = true;
+            }
+            else{
+                isPrev = true;
+                if(index == sizeList - 1){
+                    isNext = false;
+                }
+                else{
+                    isNext = true;
+                }
+            }
+            updateNextButton();
+            updatePrevButton();
+        }
+        else{
+            Log.w("MediaController", "Playlist is empty!");
+        }
+    }
+
     private void updatePrevButton(){
         if (viewMediaController == null ||
                 previousButton == null ||
@@ -525,7 +551,7 @@ public class MediaController extends FrameLayout {
         private final WeakReference<MediaController> mView;
 
         MessageHandler(MediaController view) {
-            mView = new WeakReference<MediaController>(view);
+            mView = new WeakReference<>(view);
         }
         @Override
         public void handleMessage(Message msg) {

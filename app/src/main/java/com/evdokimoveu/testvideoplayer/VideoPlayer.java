@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -32,6 +33,8 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
         Intent intent = getIntent();
         channels = intent.getStringArrayListExtra("channels");
 
+        String url = "http://testapi.qix.sx/video/music.mp4";
+
         //Add video to play list
         playList = new ArrayList<>();
         playList.add(new PlayListItem("Клип", "http://testapi.qix.sx/video/music.mp4"));
@@ -41,7 +44,6 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
         controller = new MediaController(this);
         try{
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            String url = "http://testapi.qix.sx/video/music.mp4";
             player.setDataSource(this, Uri.parse(url));
             player.setOnPreparedListener(this);
         } catch (IllegalArgumentException | IOException | SecurityException | IllegalStateException ex){
@@ -144,9 +146,11 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     @Override
     public void playNewVideo(String url) {
         try {
+            player.reset();
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
             player.setDataSource(this, Uri.parse(url));
-            player.setOnPreparedListener(this);
+            player.prepareAsync();
+            //player.setOnPreparedListener(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
