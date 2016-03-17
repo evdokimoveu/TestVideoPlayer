@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">TestVideoPlayer</string>
     <string name="video_quality">HD</string>
+    <string name="tv_button">Channels</string>
+    <string name="play_list_button">Play List</string>
+    <string name="volume_button">Volume</string>
+    <string name="previous_button">Previous</string>
+    <string name="backward_button">Backward</string>
+    <string name="play_button">Play</string>
+    <string name="forward_button">Forward</string>
+    <string name="next_button">Next</string>
 </resources>
