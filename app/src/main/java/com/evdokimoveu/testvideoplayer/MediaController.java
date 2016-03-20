@@ -12,6 +12,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
@@ -24,17 +26,19 @@ import java.util.ArrayList;
 
 public class MediaController extends FrameLayout {
 
+    private final static int DEFAULT_TIMEOUT = 3000;
+    private static final int FADE_OUT = 1;
+    private static final int SHOW_PROGRESS = 2;
+    private static final int START_ANIMATION = 3;
+    private static final int MUSIC = 0;
+    private static final int TRAILER = 1;
+
     private View viewMediaController;
     private Context mediaControllerContext;
     private ViewGroup viewGroup;
     private MediaPlayerControl playerControl;
     private ProgressBar progressBar;
     private TextView videoName;
-    private final static int DEFAULT_TIMEOUT = 3000;
-    private static final int FADE_OUT = 1;
-    private static final int SHOW_PROGRESS = 2;
-    private static final int MUSIC = 0;
-    private static final int TRAILER = 1;
     private ImageButton tvButton;
     private ImageButton playListButton;
     private ImageButton volumeButton;
@@ -49,6 +53,7 @@ public class MediaController extends FrameLayout {
     private boolean isNext;
     private boolean isPrev;
     private ArrayList<PlayListItem> playListItems;
+    private int currentVideoIndex;
 
     private Handler handler = new MessageHandler(this);
 
@@ -59,6 +64,7 @@ public class MediaController extends FrameLayout {
         this.isMute = false;
         this.isNext = true;
         this.isPrev = false;
+        this.currentVideoIndex = 0;
     }
 
     @Override
@@ -129,7 +135,7 @@ public class MediaController extends FrameLayout {
         if(previousButton != null){
             previousButton.setOnClickListener(previousButtonListener);
             if(!isPrev){
-                previousButton.setClickable(false);
+                previousButton.setVisibility(View.GONE);
             }
         }
 
@@ -137,13 +143,13 @@ public class MediaController extends FrameLayout {
         if(nextButton != null){
             nextButton.setOnClickListener(nextButtonListener);
             if(!isNext){
-                nextButton.setClickable(false);
+                nextButton.setVisibility(View.GONE);
             }
         }
 
         videoName = (TextView)v.findViewById(R.id.video_name);
         if(playListItems.size() > 0){
-            videoName.setText(playListItems.get(0).getNameVideo());
+            videoName.setText(playListItems.get(currentVideoIndex).getNameVideo());
         }
 
         progressBar = (ProgressBar)v.findViewById(R.id.seek_bar);
@@ -201,14 +207,37 @@ public class MediaController extends FrameLayout {
 
         handler.sendEmptyMessage(SHOW_PROGRESS);
 
-        Message msg = handler.obtainMessage(FADE_OUT);
+        Message msgOut = handler.obtainMessage(FADE_OUT);
+        Message msgAnimation = handler.obtainMessage(START_ANIMATION);
         if (timeout != 0) {
+            handler.sendMessageDelayed(msgAnimation, timeout);
             handler.removeMessages(FADE_OUT);
-            handler.sendMessageDelayed(msg, timeout);
+            handler.sendMessageDelayed(msgOut, timeout + 1500L);
         }
     }
     public boolean isShowing(){
         return isShow;
+    }
+
+    private void doAnimation(int layout, final FrameLayout frame){
+        Animation animation = AnimationUtils.loadAnimation(mediaControllerContext, layout);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {}
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        frame.startAnimation(animation);
+    }
+
+    public void startAnimation(){
+        FrameLayout top = (FrameLayout) findViewById(R.id.frame_layout);
+        FrameLayout bottom = (FrameLayout) findViewById(R.id.frame_name_video);
+        doAnimation(R.anim.slide_out_up, top);
+        doAnimation(R.anim.slide_out_down, bottom);
     }
 
     public void hide() {
@@ -216,12 +245,8 @@ public class MediaController extends FrameLayout {
             return;
         }
 
-        try {
-            viewGroup.removeView(this);
-            handler.removeMessages(SHOW_PROGRESS);
-        } catch (IllegalArgumentException ex) {
-            Log.w("MediaController", "already removed");
-        }
+        viewGroup.removeView(this);
+        handler.removeMessages(SHOW_PROGRESS);
         isShow = false;
     }
 
@@ -322,8 +347,8 @@ public class MediaController extends FrameLayout {
         public void onClick(View v) {
             PopupMenu popupMenu = new PopupMenu(mediaControllerContext, playListButton);
             for(int i = 0; i < playListItems.size(); i++){
-                popupMenu.getMenu().add(0, i, 0, playListItems.get(i).getNameVideo());            }
-
+                popupMenu.getMenu().add(0, i, 0, playListItems.get(i).getNameVideo());
+            }
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
@@ -333,11 +358,15 @@ public class MediaController extends FrameLayout {
                             url = playListItems.get(MUSIC).getUrlVideo();
                             playerControl.playNewVideo(url);
                             videoName.setText(playListItems.get(MUSIC).getNameVideo());
+                            checkNextPrev(MUSIC, playListItems.size());
+                            currentVideoIndex = MUSIC;
                             return true;
                         case TRAILER:
                             url = playListItems.get(TRAILER).getUrlVideo();
                             playerControl.playNewVideo(url);
                             videoName.setText(playListItems.get(TRAILER).getNameVideo());
+                            checkNextPrev(TRAILER, playListItems.size());
+                            currentVideoIndex = TRAILER;
                             return true;
                         default:
                             return true;
@@ -402,14 +431,28 @@ public class MediaController extends FrameLayout {
     private View.OnClickListener previousButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            int sizePlayList = playListItems.size();
+            if(currentVideoIndex > 0){
+                --currentVideoIndex;
+                String url = playListItems.get(currentVideoIndex).getUrlVideo();
+                playerControl.playNewVideo(url);
+                videoName.setText(playListItems.get(currentVideoIndex).getNameVideo());
+                checkNextPrev(currentVideoIndex, sizePlayList);
+            }
         }
     };
 
     private View.OnClickListener nextButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
+            int sizePlayList = playListItems.size();
+            if(currentVideoIndex < sizePlayList - 1){
+                ++currentVideoIndex;
+                String url = playListItems.get(currentVideoIndex).getUrlVideo();
+                playerControl.playNewVideo(url);
+                videoName.setText(playListItems.get(currentVideoIndex).getNameVideo());
+                checkNextPrev(currentVideoIndex, sizePlayList);
+            }
         }
     };
 
@@ -496,10 +539,10 @@ public class MediaController extends FrameLayout {
             return;
         }
         if(isPrev){
-            previousButton.setClickable(true);
+            previousButton.setVisibility(View.VISIBLE);
         }
         else{
-            previousButton.setClickable(false);
+            previousButton.setVisibility(View.GONE);
         }
     }
 
@@ -510,10 +553,10 @@ public class MediaController extends FrameLayout {
             return;
         }
         if(isNext){
-            nextButton.setClickable(true);
+            nextButton.setVisibility(View.VISIBLE);
         }
         else{
-            nextButton.setClickable(false);
+            nextButton.setVisibility(View.GONE);
         }
     }
 
@@ -571,6 +614,9 @@ public class MediaController extends FrameLayout {
                         msg = obtainMessage(SHOW_PROGRESS);
                         sendMessageDelayed(msg, 1000 - (pos % 1000));
                     }
+                    break;
+                case START_ANIMATION:
+                    view.startAnimation();
                     break;
             }
         }
