@@ -187,6 +187,7 @@ public class MediaController extends FrameLayout {
     }
 
     public void show(int timeout) {
+        Log.v(MediaController.class.getName(), "show()");
         if (!isShow && viewGroup != null) {
             setProgress();
             if (playButton != null) {
@@ -210,6 +211,7 @@ public class MediaController extends FrameLayout {
         Message msgOut = handler.obtainMessage(FADE_OUT);
         Message msgAnimation = handler.obtainMessage(START_ANIMATION);
         if (timeout != 0) {
+            handler.removeMessages(START_ANIMATION);
             handler.sendMessageDelayed(msgAnimation, timeout);
             handler.removeMessages(FADE_OUT);
             handler.sendMessageDelayed(msgOut, timeout + 1500L);
@@ -220,6 +222,7 @@ public class MediaController extends FrameLayout {
     }
 
     private void doAnimation(int layout, final FrameLayout frame){
+        Log.v(MediaController.class.getName(), "doAnimation()");
         Animation animation = AnimationUtils.loadAnimation(mediaControllerContext, layout);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -234,6 +237,7 @@ public class MediaController extends FrameLayout {
     }
 
     public void startAnimation(){
+        Log.v(MediaController.class.getName(), "startAnimation()");
         FrameLayout top = (FrameLayout) findViewById(R.id.frame_layout);
         FrameLayout bottom = (FrameLayout) findViewById(R.id.frame_name_video);
         doAnimation(R.anim.slide_out_up, top);
@@ -241,6 +245,7 @@ public class MediaController extends FrameLayout {
     }
 
     public void hide() {
+        Log.v(MediaController.class.getName(), "Start hide()");
         if (viewGroup == null) {
             return;
         }
@@ -251,6 +256,7 @@ public class MediaController extends FrameLayout {
     }
 
     private int setProgress() {
+        Log.v(MediaController.class.getName(), "setProgress()");
         if (playerControl == null || dragging) {
             return 0;
         }
@@ -270,18 +276,21 @@ public class MediaController extends FrameLayout {
     }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        Log.v(MediaController.class.getName(), "onTouchEvent()");
         show(DEFAULT_TIMEOUT);
         return true;
     }
 
     @Override
     public boolean onTrackballEvent(MotionEvent ev) {
+        Log.v(MediaController.class.getName(), "onTrackballEvent()");
         show(DEFAULT_TIMEOUT);
         return false;
     }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        Log.v(MediaController.class.getName(), "dispatchKeyEvent("+event.getKeyCode()+")");
         if (playerControl == null) {
             return true;
         }
@@ -355,18 +364,22 @@ public class MediaController extends FrameLayout {
                     String url;
                     switch (item.getItemId()){
                         case MUSIC:
-                            url = playListItems.get(MUSIC).getUrlVideo();
-                            playerControl.playNewVideo(url);
-                            videoName.setText(playListItems.get(MUSIC).getNameVideo());
-                            checkNextPrev(MUSIC, playListItems.size());
-                            currentVideoIndex = MUSIC;
+                            if(currentVideoIndex != MUSIC){
+                                url = playListItems.get(MUSIC).getUrlVideo();
+                                playerControl.playNewVideo(url);
+                                videoName.setText(playListItems.get(MUSIC).getNameVideo());
+                                checkNextPrev(MUSIC, playListItems.size());
+                                currentVideoIndex = MUSIC;
+                            }
                             return true;
                         case TRAILER:
-                            url = playListItems.get(TRAILER).getUrlVideo();
-                            playerControl.playNewVideo(url);
-                            videoName.setText(playListItems.get(TRAILER).getNameVideo());
-                            checkNextPrev(TRAILER, playListItems.size());
-                            currentVideoIndex = TRAILER;
+                            if(currentVideoIndex != TRAILER){
+                                url = playListItems.get(TRAILER).getUrlVideo();
+                                playerControl.playNewVideo(url);
+                                videoName.setText(playListItems.get(TRAILER).getNameVideo());
+                                checkNextPrev(TRAILER, playListItems.size());
+                                currentVideoIndex = TRAILER;
+                            }
                             return true;
                         default:
                             return true;
@@ -390,6 +403,7 @@ public class MediaController extends FrameLayout {
                 isMute = true;
                 updateVolumeButton();
             }
+            show(DEFAULT_TIMEOUT);
         }
     };
     private View.OnClickListener playButtonListener = new View.OnClickListener() {
