@@ -52,6 +52,7 @@ public class MediaController extends FrameLayout {
     private boolean isMute;
     private boolean isNext;
     private boolean isPrev;
+    private boolean opening;
     private ArrayList<PlayListItem> playListItems;
     private int currentVideoIndex;
 
@@ -65,6 +66,7 @@ public class MediaController extends FrameLayout {
         this.isNext = true;
         this.isPrev = false;
         this.currentVideoIndex = 0;
+        this.opening = false;
     }
 
     @Override
@@ -257,7 +259,8 @@ public class MediaController extends FrameLayout {
 
     private int setProgress() {
         Log.v(MediaController.class.getName(), "setProgress()");
-        if (playerControl == null || dragging) {
+        opening = playerControl.isOpening();
+        if (playerControl == null || dragging || opening) {
             return 0;
         }
 
@@ -343,7 +346,7 @@ public class MediaController extends FrameLayout {
         @Override
         public void onClick(View v) {
             PopupMenu popupMenu = new PopupMenu(mediaControllerContext, tvButton);
-            ArrayList<String> channels = playerControl.getChanels();
+            ArrayList<String> channels = playerControl.getChannels();
             for(int i = 0; i < channels.size(); i++){
                 popupMenu.getMenu().add(channels.get(i));
             }
@@ -598,9 +601,10 @@ public class MediaController extends FrameLayout {
         boolean canPause();
         boolean canSeekBackward();
         boolean canSeekForward();
+        boolean isOpening();//isOpening new video
         void    setVolume(float volume);
         void    playNewVideo(String url);
-        ArrayList<String> getChanels();
+        ArrayList<String> getChannels();
         ArrayList<PlayListItem> getPlayList();
     }
 

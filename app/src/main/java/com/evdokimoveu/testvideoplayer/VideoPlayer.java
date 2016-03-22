@@ -21,6 +21,7 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     private MediaController controller;
     private ArrayList<String> channels;
     private ArrayList<PlayListItem> playList;
+    private boolean opening;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,15 +31,17 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
         SurfaceHolder videoHolder = surfaceView.getHolder();
         videoHolder.addCallback(this);
 
+        this.opening = false;
+
         Intent intent = getIntent();
         channels = intent.getStringArrayListExtra("channels");
-
-        String url = "http://testapi.qix.sx/video/music.mp4";
 
         //Add video to play list
         playList = new ArrayList<>();
         playList.add(new PlayListItem("Клип", "http://testapi.qix.sx/video/music.mp4"));
         playList.add(new PlayListItem("Трейлер", "http://testapi.qix.sx/video/trailer.mp4"));
+
+        String url = "http://testapi.qix.sx/video/music.mp4";
 
         player = new MediaPlayer();
         controller = new MediaController(this);
@@ -60,23 +63,30 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        player.setDisplay(holder);
-        player.prepareAsync();
+        try{
+            player.setDisplay(holder);
+            player.prepareAsync();
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {}
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        player.release();
+    }
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
+        Log.v(VideoPlayer.class.getName(), "onPrepared()");
         controller.setMediaPlayer(this);
         controller.setSurfaceView((FrameLayout) findViewById(R.id.video_container));
+        opening = false;
         player.start();
     }
-
 
     @Override
     public void start() {
@@ -134,7 +144,7 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     }
 
     @Override
-    public ArrayList<String> getChanels() {
+    public ArrayList<String> getChannels() {
         return channels;
     }
 
@@ -144,15 +154,21 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
     }
 
     @Override
+    public boolean isOpening() {
+        return opening;
+    }
+
+    @Override
     public void playNewVideo(String url) {
         try {
             player.reset();
+            opening = true;
             player.setAudioStreamType(AudioManager.STREAM_MUSIC);
             player.setDataSource(this, Uri.parse(url));
             player.prepareAsync();
-            //player.setOnPreparedListener(this);
-        } catch (IOException e) {
-            e.printStackTrace();
+            player.setOnPreparedListener(this);
+        } catch (IllegalArgumentException | IOException | SecurityException | IllegalStateException ex) {
+            ex.printStackTrace();
         }
     }
 }
