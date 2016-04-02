@@ -76,7 +76,8 @@ public class VideoPlayer extends AppCompatActivity implements SurfaceHolder.Call
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        player.release();
+        Log.v(VideoPlayer.class.getName(), "surfaceDestroyed()");
+        player.stop();
     }
 
     @Override
